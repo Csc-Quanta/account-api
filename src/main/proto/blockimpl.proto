@@ -1,0 +1,172 @@
+syntax = "proto3";
+package org.csc.account.gens;
+import "tximpl.proto";
+
+enum PBCTModule {
+    BCT = 0; // Block
+};
+
+enum PBCTCommand {
+	GBC = 0; // 生成Block Header
+	SBC = 1; // 广播block Header
+	SSS = 2; // 获取节点的Block
+	BIO = 3; // Block信息
+	GLB = 4; 
+	GBH = 5;
+	GBN = 6; // 根据高度获取block
+	GBS = 7; // 根据高度获取blocks
+	GBT = 8; // 获取block connect 状态
+	GBA = 9; // 根据交易hash获取block
+}
+
+message RespGetBlocksStoreByNumber {
+	repeated BlocksStore blocks = 1;
+}
+
+message BlocksStore {
+	string hash = 1;
+	string parentHash = 2;
+	string number = 3;
+	string connect = 4;
+	string miner = 5;
+}
+
+message RespGetBlocksByNumber {
+	repeated BlockHeaderxImpl blocks = 1;
+}
+
+message ReqGetBlockByHash {
+	string hash = 1;
+}
+
+message ReqGetBlockByNumber {
+	int64 number = 1;
+}
+
+message ReqGetBlock {
+    int32 txCount = 1;
+	string extraData = 2;
+}
+
+message RespGetBlock {
+	BlockHeaderImpl header = 1;
+	BlockMinerImpl miner = 4;
+	string version = 5;
+	int32 retCode = 2;
+	string retMsg = 3;
+}
+
+message ReqSyncBlock {
+	BlockHeaderImpl header = 1;
+	BlockMinerImpl miner = 2;
+}
+
+message RespSyncBlock {
+	int32 retCode = 1;
+}
+
+message ReqBlockInfo {
+
+}
+
+message RespBlockInfo {
+	int64 number = 1;
+	int64 blockCount = 2;
+	int32 waitSync = 3;
+	int32 waitBlock = 4;
+	string cache = 5;
+	repeated string dump = 7;
+	repeated string temp = 6;
+	int64  	txBlockCount = 11;
+	double  txAcceptTps = 12;
+	double  txBlockTps = 13;
+	double  maxAcceptTps = 14;
+	double  maxBlockTps = 15;
+	int64	firstBlockTxTime = 16;
+	int64	lastBlockTxTime = 17;
+	int64	blockTxTimeCostMS = 18;
+
+	int64	firstAcceptTxTime = 19;
+	int64	lastAcceptTxTime = 20;
+	int64	acceptTxTimeCostMS = 21;
+	
+	int64  	txAcceptCount = 50; // 节点创建的交易数量
+	int64 	txSyncCount = 51;	// 节点收到的其他节点同步的交易数量
+	int64 realTxBlockCount = 52;
+	int64 rollBackBlockCount = 53;
+	int64 rollBackTxCount = 54;
+	int64 dropTxCount = 55;
+	repeated WaitBlockItem waits = 56;
+}
+
+message WaitBlockItem {
+	string hash = 1;
+	string c = 2;
+	string remove = 3;
+}
+
+message RespBlockDetail {
+	int32 retCode = 1;
+	string retMsg = 2;
+	string parentHash = 3;
+	// string coinbase = 4;
+	string txTrieRoot = 5;
+	int64 timestamp = 6;
+
+	int64 number = 7;
+	BlockMinerImpl miner = 8;
+	string extraData = 9;
+	string nonce = 10;	string blockHash = 11;
+	repeated string txHashs = 12;
+	int64 sliceId = 13;
+	string stateRoot = 14;
+	repeated string ssr = 15;
+}
+
+message BlockHeaderImpl {
+	string blockHash = 1;
+	string parentHash = 2;
+	int64 number = 3;
+	string state = 4;
+	string receipt = 5;
+	string txTrieRoot = 6;
+	int64 timestamp = 7;
+	int64 sliceId = 8;
+	string extraData = 9;
+	repeated string txHashs = 10;
+	repeated string ssr = 11;
+}
+
+message BlockHeaderxImpl {
+	string blockHash = 1;
+	string parentHash = 2;
+	int64 number = 3;
+	string state = 4;
+	string receipt = 5;
+	string txTrieRoot = 6;
+	int64 timestamp = 7;
+	string miner = 8;
+	int32 sliceId = 9;
+}
+
+message BlockMinerImpl {
+	string node = 1;
+	string reward = 3;
+	string address = 4;
+	string bcuid = 5;
+	string termid = 6;
+	string nodebit = 7;
+	repeated string parts = 8;
+}
+
+message BlockBodyImpl {
+	repeated MultiTransactionImpl txs = 1;
+}
+
+message AddBlockResponse {
+	int32 retCode = 1;
+	int64 currentNumber = 2;
+	string retMsg = 3;
+	repeated string txHashs = 4;
+	int64 wantNumber = 5;
+}

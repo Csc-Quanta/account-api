@@ -1,0 +1,278 @@
+syntax = "proto3";
+
+package org.csc.account.gens;
+
+enum PTSTModule {
+	TST = 0; // 交易
+};
+
+enum PTSTCommand {
+	CSI = 0; // contract
+	STT = 1; // transaction
+	ECT = 2; // contract
+	LTP = 3; // load test perpare
+	LTE = 4; // load test exec
+	MTT = 5; // thread test
+	BFC = 6; // start new forks
+	BFS = 7; // remove forks
+	BCV = 8; // block chain view
+	LTR = 9; // load test perpare result
+	TCT = 10; // create token
+	TCC = 12; // create contract transaction
+	TEC = 13; // call contract transaction
+	TRO = 14; // crypto token transaction
+	TOO = 15; // token transaction
+	TCO = 16; // create crypto token transaction
+	TCA = 17; // create union account
+	TUA = 18; // union account transaction
+	STM = 19; // multi account to multi account
+	MTY = 20; // for delay test
+	VTS = 21; // vote transaction
+	VTT = 22; // for vote storage test
+	SLT = 23; // sign load test
+	GLT = 24; // cal address load test
+	EPT = 25; 
+	TUT = 26; // union account token transaction
+	LCO = 27; // crypto token transaction load test
+	MTO = 28; // mint token transaction
+	BTO = 29; // burn token transaction
+	DUS = 30; // dump statetrie
+
+	SCR = 31; //side chain reg
+	SST = 32; //side chain sync
+}
+
+message ReqSideChainReg {
+	string address = 1;
+	string privKey = 2;
+	string max = 4;
+	string acceptMax = 5;
+	int32 acceptLimit = 6;
+	repeated string relAddress = 7;
+}
+
+message RespSideChainReg {
+	int32 retCode = 1;
+	string retMsg = 2;
+	string txHash = 3;
+	string address = 4;
+}
+
+message ReqSideChainSync {
+	string address = 1;
+	string privKey = 2;
+	string chainAddress = 3;
+	int64 blockNumber = 4;
+	string blockHash = 5;
+	repeated string txHash = 6;
+	repeated string status = 7;
+	repeated string result = 8;
+}
+
+message RespSideChainSync {
+	int32 retCode = 1;
+	string retMsg = 2;
+	string txHash = 3;
+}
+
+message ReqCryptoTokenLoadTest {
+	int32 fromCount = 1;
+	int32 tokenCount = 2;
+}
+
+message RespCryptoTokenLoadTest {
+	int32 create = 1;
+	int32 transfer = 2;
+	int32 successTransfer = 3;
+	string txHash = 4;
+	repeated string accounts = 5;
+}
+
+message ReqSignLoadTest {
+	int32 repeated = 1;
+	string testCase = 2;
+}
+
+message RespSignLoadTest {
+	int64 start = 1;
+	int64 end = 2;
+	string duration = 3;
+	string tps = 4;
+}
+
+message ReqVoteStorage {
+	string address = 1;
+	string key = 2;
+}
+
+message RespVoteStorage {
+	int32 retCode = 1;
+	string retMsg = 2;
+	string voteTxHash = 3;
+	repeated RespVoteStorageItem items = 4;
+}
+
+message RespVoteStorageItem {
+	string address = 1;
+	string txHash = 2;
+	string blockHash = 3;
+	int64 blockHeight = 4;
+	int64 timestamp = 5;
+	string voteContent = 6;
+	string voteResult = 7;
+	string cost = 8;
+	int64 endBlockHeight = 9;
+}
+
+message ReqVoteTransaction {
+	string address = 1;
+	string privKey = 2;
+	string voteContent = 3;
+	string voteAddress = 4;
+	int64 endHeight = 5;
+	string amount = 6;
+	string result = 7;
+}
+
+message RespVoteTransaction {
+	int32 retCode = 1;
+	string retMsg = 2;
+}
+
+message ReqUnionAccountTransaction {
+	string unionAccountAddress = 1;
+	string amount = 2;
+	string relAddress = 3;
+	string relKey = 4;
+	string relTxHash = 5;
+	string toAddress = 6;
+}
+
+message ReqCreateUnionAccount {
+	string address = 1;
+	string privKey = 2;
+	string max = 4;
+	string acceptMax = 5;
+	int32 acceptLimit = 6;
+	repeated string relAddress = 7;
+}
+
+message RespCreateUnionAccount {
+	int32 retCode = 1;
+	string retMsg = 2;
+}
+
+message ReqCreateContract {
+	string address = 1;
+	string pubKey = 2;
+	string privKey = 3;
+	string data = 4;
+}
+
+message ReqCallContract {
+	string address = 1;
+	string pubKey = 2;
+	string privKey = 3;
+	string contract = 4;
+	string data = 5;
+	string functionjson = 6;
+	string function = 7;
+}
+
+message RespContract {
+	string txHash = 1;
+	string contractHash = 2;
+	repeated string trace = 3;
+	int32 retcode = 4;
+	string retmsg = 5;
+}
+
+message ReqCreateToken {
+	string token = 1;
+	string total = 2;
+	ReqTransactionAccount fromAccount = 3;
+}
+
+message RespCreateToken {
+	int32 retCode = 1;
+	string regMsg = 2;
+	string txHash = 3;
+}
+
+message MsgBlockView {
+	string jsonStr = 1;
+}
+
+message ReqStartNewFork {
+	int32 beginNumber = 1;
+	string beginHash = 3;
+	int32 count = 2;
+}
+
+message RespStartNewFork {
+	string forkId = 1;
+}
+
+message ReqStopFork {
+}
+
+message RespStopFork {
+}
+
+message ReqThreadTransaction {
+	int32 threads = 1;
+	int32 duration = 2;
+	repeated string address = 3;
+	repeated string privKey = 4;
+	repeated string pubKey = 5;
+}
+
+message ReqCommonTest {
+	string arg1 = 1;
+	string current = 2;
+	string parent = 3;
+}
+
+message RespCommonTest {
+	int32 retcode = 1;
+	string retmsg = 2;
+}
+
+message ReqCreateTransactionTest {
+	repeated ReqTransactionAccount input = 1;
+	repeated ReqTransactionAccount output = 2;
+	string data = 3;
+	repeated ReqTransactionSignature signature = 4;
+	int32 defaultTx = 5;
+	int32 erc20Tx = 6;
+	string erc20TxToken = 11;
+	int32 contractCall = 7;
+	string contractCallAddress = 9;
+	int32 contractTx = 8;
+	string contractTxAddress = 10;
+	string symbol = 12;
+}
+
+message RespCreateTransactionTest {
+	string txhash = 1;
+	string from = 5;
+	string to = 6;
+	int32 retcode = 2;
+	string retmsg = 3;
+	repeated string trace = 4;
+}
+
+message ReqTransactionAccount {
+	string address = 1;
+	string amount = 2;
+	string prikey = 3;
+	string putkey = 4;
+	string erc20amount = 5;
+	string erc20symbol = 6;
+	string erc721token = 7;
+	string erc721symbol = 8;
+}
+
+message ReqTransactionSignature {
+	string privKey = 1;
+}
