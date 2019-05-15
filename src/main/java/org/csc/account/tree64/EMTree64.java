@@ -24,15 +24,15 @@ public class EMTree64 {
         return root.delete(key, storage);
     }
 
-    public byte[] encode() {
-        byte[] rootbb = root.encode(storage);
-        root.flushMemory(0);
+    public byte[] encode(int blocknumber) {
+        byte[] rootbb = root.eencode(storage,blocknumber);
+//        root.flushMemory(0);
         return rootbb;
     }
 
-    public ETNode64.Stat getStat() {
+    public ETNode64.Stat getStat(int blocknumber) {
         if (root != null) {
-            root.encode(storage);
+            root.eencode(storage,blocknumber);
             return root.getStat();
         } else {
             return new ETNode64.Stat();

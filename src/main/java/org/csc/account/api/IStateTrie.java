@@ -10,7 +10,7 @@ public interface IStateTrie {
 
 	public void delete(byte[] key);
 
-	public byte[] getRootHash();
+	public byte[] getRootHash(int blocknumber);
 	public void clear() ;
 	public long getCacheSize();
 

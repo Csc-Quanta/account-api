@@ -19,194 +19,211 @@ import java.util.List;
  */
 public interface IChainHelper {
 
-    /**
-     * 获取节点最后一个区块的Hash
-     *
-     * @return
-     * @throws BlockException
-     */
-    String GetStableBestBlockHash() throws BlockException;
+	/**
+	 * 获取节点最后一个区块的Hash
+	 *
+	 * @return
+	 * @throws BlockException
+	 */
+	String GetStableBestBlockHash() throws BlockException;
 
-    BlockEntity GetStableBestBlock() throws BlockException;
+	BlockEntity GetStableBestBlock() throws BlockException;
 
-    String GetConnectBestBlockHash() throws BlockException;
+	String GetConnectBestBlockHash() throws BlockException;
 
-    BlockEntity GetConnectBestBlock() throws BlockException;
+	BlockEntity GetConnectBestBlock() throws BlockException;
+	
+	BlockEntity GetConnectLastBlock() throws BlockException;
 
-    BlockEntity confirmBlock(String blockHash);
-    /**
-     * 获取节点区块个数
-     *
-     * @return
-     */
-    long getBlockCount();
+	BlockEntity confirmBlock(String blockHash);
 
-    /**
-     * 获取节点信息
-     *
-     * @return
-     */
-    NodeDef getNode();
+	/**
+	 * 获取节点区块个数
+	 *
+	 * @return
+	 */
+	long getBlockCount();
 
-    /**
-     * 获取网络
-     *
-     * @return
-     */
-    String getNet();
+	/**
+	 * 获取节点信息
+	 *
+	 * @return
+	 */
+	NodeDef getNode();
 
-    /**
-     * 获取adminkey
-     *
-     * @return
-     */
-    String getAdminKey();
+	/**
+	 * 获取网络
+	 *
+	 * @return
+	 */
+	String getNet();
 
-    /**
-     * 获取节点网络
-     *
-     * @return
-     */
-    String getNodeNet();
+	/**
+	 * 获取adminkey
+	 *
+	 * @return
+	 */
+	String getAdminKey();
 
-    BigInteger getMaxTokenTotal();
+	/**
+	 * 获取节点网络
+	 *
+	 * @return
+	 */
+	String getNodeNet();
 
-    BigInteger getMinTokenTotal();
+	BigInteger getMaxTokenTotal();
 
-    String getKeystoreNumber();
+	BigInteger getMinTokenTotal();
 
-    /**
-     * 获取最后一个区块的索引
-     *
-     * @return
-     * @throws BlockException
-     */
-    long getLastStableBlockNumber() throws BlockException;
+	String getKeystoreNumber();
 
-    long getLastBlockNumber();
+	/**
+	 * 获取最后一个区块的索引
+	 *
+	 * @return
+	 * @throws BlockException
+	 */
+	long getLastStableBlockNumber() throws BlockException;
 
-    /**
-     * 获取创世块
-     *
-     * @return
-     * @throws BlockException
-     */
-    BlockEntity getGenesisBlock() throws BlockException;
+	long getLastBlockNumber();
 
-    boolean isExistsGenesisBlock() throws BlockException;
+	/**
+	 * 获取创世块
+	 *
+	 * @return
+	 * @throws BlockException
+	 */
+	BlockEntity getGenesisBlock() throws BlockException;
 
-    /**
-     * 向区块链中加入新的区块
-     *
-     * @param oBlock
-     * @return
-     * @throws BlockNotFoundInStoreException
-     */
-    BlockStoreSummary connectBlock(BlockEntity oBlock) throws BlockNotFoundInStoreException;
+	boolean isExistsGenesisBlock() throws BlockException;
 
-    BlockStoreSummary stableBlock(BlockEntity oBlock);
+	/**
+	 * 向区块链中加入新的区块
+	 *
+	 * @param oBlock
+	 * @return
+	 * @throws BlockNotFoundInStoreException
+	 */
+	BlockStoreSummary connectBlock(BlockEntity oBlock) throws BlockNotFoundInStoreException;
 
-    List<BlockEntity> getChildBlock(BlockEntity oBlock);
+	BlockStoreSummary stableBlock(BlockEntity oBlock);
 
-    BlockEntity rollbackTo(long number);
+	List<BlockEntity> getChildBlock(BlockEntity oBlock);
 
-    BlockStoreSummary addBlock(BlockEntity oBlock);
+	BlockEntity rollbackTo(long number);
 
-    BlockStoreSummary tryAddBlock(BlockEntity applyBlock);
+	BlockStoreSummary addBlock(BlockEntity oBlock);
 
-    /**
-     * 从一个块开始遍历整个区块链，返回该块的所有子孙
-     *
-     * @param blockHash
-     * @return
-     * @throws BlockException
-     */
-    LinkedList<BlockEntity> getBlocks(byte[] blockHash) throws BlockException;
+	BlockStoreSummary tryAddBlock(BlockEntity applyBlock);
 
-    /**
-     * 从一个块开始遍历整个区块链,到一个块结束，返回区间内的区块。默认返回200块
-     *
-     * @param blockHash
-     * @param endBlockHash
-     * @return 200块
-     * @throws BlockException
-     */
-    LinkedList<BlockEntity> getBlocks(byte[] blockHash, byte[] endBlockHash) throws BlockException;
+	/**
+	 * 从一个块开始遍历整个区块链，返回该块的所有子孙
+	 *
+	 * @param blockHash
+	 * @return
+	 * @throws BlockException
+	 */
+	LinkedList<BlockEntity> getBlocks(byte[] blockHash) throws BlockException;
 
-    /**
-     * 从一个块开始遍历整个区块链,到一个块结束，返回区间指定数量的区块
-     *
-     * @param blockHash
-     * @param endBlockHash
-     * @param maxCount
-     * @return
-     * @throws BlockException
-     */
-    LinkedList<BlockEntity> getBlocks(byte[] blockHash, byte[] endBlockHash, int maxCount) throws BlockException;
+	/**
+	 * 从一个块开始遍历整个区块链,到一个块结束，返回区间内的区块。默认返回200块
+	 *
+	 * @param blockHash
+	 * @param endBlockHash
+	 * @return 200块
+	 * @throws BlockException
+	 */
+	LinkedList<BlockEntity> getBlocks(byte[] blockHash, byte[] endBlockHash) throws BlockException;
 
-    /**
-     * 从一个块开始，遍历整个整个区块，返回改块的所有父块
-     *
-     * @param blockHash
-     * @return
-     * @throws BlockException
-     */
-    LinkedList<BlockEntity> getParentsBlocks(String blockHash) throws BlockException;
+	/**
+	 * 从一个块开始遍历整个区块链,到一个块结束，返回区间指定数量的区块
+	 *
+	 * @param blockHash
+	 * @param endBlockHash
+	 * @param maxCount
+	 * @return
+	 * @throws BlockException
+	 */
+	LinkedList<BlockEntity> getBlocks(byte[] blockHash, byte[] endBlockHash, int maxCount) throws BlockException;
 
-    /**
-     * 从一个块开始，到一个块结束，遍历整个整个区块，返回改块的所有父块
-     *
-     * @param blockHash
-     * @param endBlockHash
-     * @return 200块
-     * @throws BlockException
-     */
-    LinkedList<BlockEntity> getParentsBlocks(String blockHash, String endBlockHash) throws BlockException;
+	/**
+	 * 从一个块开始，遍历整个整个区块，返回改块的所有父块
+	 *
+	 * @param blockHash
+	 * @return
+	 * @throws BlockException
+	 */
+	LinkedList<BlockEntity> getParentsBlocks(String blockHash) throws BlockException;
 
-    /**
-     * 从一个块开始，到一个块结束，遍历整个整个区块，返回指定数量的该块的所有父块
-     *
-     * @param blockHash
-     * @param endBlockHash
-     * @param maxCount
-     * @return
-     * @throws BlockException
-     */
-    LinkedList<BlockEntity> getParentsBlocks(String blockHash, String endBlockHash, long maxCount)
-            throws BlockException;
+	/**
+	 * 从一个块开始，到一个块结束，遍历整个整个区块，返回改块的所有父块
+	 *
+	 * @param blockHash
+	 * @param endBlockHash
+	 * @return 200块
+	 * @throws BlockException
+	 */
+	LinkedList<BlockEntity> getParentsBlocks(String blockHash, String endBlockHash) throws BlockException;
 
-    /**
-     * 根据区块高度，获取区块信息
-     *
-     * @param number
-     * @return
-     * @throws BlockException
-     */
-    BlockEntity getBlockByNumber(long number);
+	/**
+	 * 从一个块开始，到一个块结束，遍历整个整个区块，返回指定数量的该块的所有父块
+	 *
+	 * @param blockHash
+	 * @param endBlockHash
+	 * @param maxCount
+	 * @return
+	 * @throws BlockException
+	 */
+	LinkedList<BlockEntity> getParentsBlocks(String blockHash, String endBlockHash, long maxCount)
+			throws BlockException;
 
-    List<BlockEntity> getBlocksByNumber(long number);
+	/**
+	 * 根据区块高度，获取区块信息
+	 *
+	 * @param number
+	 * @return
+	 * @throws BlockException
+	 */
+	BlockEntity getBlockByNumber(long number);
 
-    /**
-     * get node account info.
-     * <p>
-     * return null while not found.
-     *
-     * @return
-     */
-    String getNodeAccount();
+	/**
+	 * 根据区块高度，获取一组区块信息
+	 * 
+	 * @param number
+	 * @return
+	 */
+	List<BlockEntity> getBlocksByNumber(long number);
 
-    /**
-     * get node config account address
-     *
-     * @return config account address
-     */
-    String getNodeConfigAccount();
+	/**
+	 * 根据区块高度，获取一组已经连接的区块信息
+	 * 
+	 * @param number
+	 * @return
+	 */
+	List<BlockEntity> getConnectBlocksByNumber(long number);
 
-    void onStart(String bcuid, String address, String name);
+	/**
+	 * get node account info.
+	 * <p>
+	 * return null while not found.
+	 *
+	 * @return
+	 */
+	String getNodeAccount();
 
-    void reloadBlockCache() throws BlockException;
+	/**
+	 * get node config account address
+	 *
+	 * @return config account address
+	 */
+	String getNodeConfigAccount();
 
-    BlockEntity getBlockByHash(ByteString blockHash) throws BlockException;
+	void onStart(String bcuid, String address, String name);
 
-    int getUnStableStorageSize();
+	void reloadBlockCache() throws BlockException;
+
+	BlockEntity getBlockByHash(ByteString blockHash) throws BlockException;
+
+	int getUnStableStorageSize();
 }

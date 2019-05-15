@@ -1,6 +1,7 @@
 package org.csc.account.api;
 
 import com.google.protobuf.ByteString;
+
 import org.csc.account.bean.HashPair;
 import org.csc.account.bean.StatsInfo;
 import org.csc.account.exception.BlockException;
@@ -145,4 +146,10 @@ public interface ITransactionHelper {
 	long getConfirmSize();
 
 	List<ByteString> getRelationAccount(Tx.Transaction oMultiTransaction);
+	
+	
+	public void setTxSaveDeferMode(boolean defermode);
+	
+	public boolean isTxSaveDeferMode() ;
+	public void flushDeferCache() ;
 }

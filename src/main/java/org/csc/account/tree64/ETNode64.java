@@ -164,17 +164,40 @@ public class ETNode64 {
 		return this;
 	}
 
-	public byte[] encode(IETStorage64 storage) {
+	public ETNode64 iterateNodes(IETStorage64 storage, TrieScanner scanner) {
+		scanner.foundNode(this);
+		for (int i = 0; i < TREE_RADIX + 1; i++) {
+			if (childrenHashs[i] != null) {
+				// 从KV数据库中获取Value
+				byte bb[] = storage.esGet(childrenHashs[i]);
+				if (bb == null) {
+					throw new RuntimeException("hash not found:" + childrenHashs[i]);
+				}
+				// 反序列化
+				children[i] = fromBytes(childrenHashs[i], bb);
+				// 递归获取子Node
+				children[i].iterateNodes(storage, scanner);
+				children[i] = null;
+			}
+		}
+
+		return this;
+	}
+
+	public byte[] eencode(IETStorage64 storage, int blocknumber) {
 		codeDeep.set(0);
 		parrelCC0.set(0);
 		parrelCC1.set(0);
 		bufferAlloc.set(0);
-		byte[] ret = encode(storage, 0);
-
+		// nodeCount.set(0);
+		byte[] ret = _encode(storage, blocknumber, 0);
 		return ret;
 	}
 
-	public byte[] encode(IETStorage64 storage, int deep) {
+	static int fastHash = new PropHelper(null).get("org.csc.account.state.fasthash", 1);
+	static int layer2Parral = new PropHelper(null).get("org.csc.account.state.layer2.parral", 0);
+
+	private byte[] _encode(IETStorage64 storage, int blocknumber, int deep) {
 		if (maxDeep.get() < deep) {
 			maxDeep.set(deep);
 		}
@@ -186,23 +209,34 @@ public class ETNode64 {
 			codeDeep.set(deep);
 		}
 
+		if (hash != null) {
+			// invalidate old hash
+			storage.esRemove(hash);
+		}
 		// 序列化
-		contentData = toBytes(storage, deep);
+		contentData = toBytes(storage, blocknumber, deep);
 		// len = 64
-		hash = EHelper.encAPI.sha3Encode(contentData);
+		if (hash == null || fastHash == 0) {
+			hash = EHelper.encAPI.sha3Encode(contentData);
+		} else {//
+			hash = EHelper.encAPI.sha3Encode(hash);
+		}
+		hash[0] = (byte) ((blocknumber / 10) % 256);
 
 		dirty = false;
 		if (storage != null) {
 			storage.esPut(hash, contentData);
 		}
-		if (deep == 0 && codeDeep.get() > 0) {
-			log.error("trie-calc::-->maxdeep=" + maxDeep.get() + ",codeDeep=" + codeDeep.get() + ",parrelCC0="
-					+ parrelCC0.get() + ",parrelCC1=" + parrelCC1.get() + ",buffalloc=" + bufferAlloc.get()
-					+ ",buffcount=" + bbPools.getActiveObjs().size());// + );
-		}
+		// if (deep == 0 && codeDeep.get() > 0) {
+		// log.error("trie-calc::-->maxdeep=" + maxDeep.get() + ",codeDeep=" +
+		// codeDeep.get() + ",parrelCC0="
+		// + parrelCC0.get() + ",parrelCC1=" + parrelCC1.get() + ",buffalloc=" +
+		// bufferAlloc.get()
+		// + ",buffcount=" + bbPools.getActiveObjs().size());// + );
+		// }
 		return hash;
 	}
-	
+
 	/**
 	 * 获取子节点
 	 *
@@ -416,16 +450,16 @@ public class ETNode64 {
 
 	}
 
-	public byte[] toBytes(IETStorage64 storage, int deep) {
+	public byte[] toBytes(IETStorage64 storage, int blocknumber, int deep) {
 		byte[] mask = new byte[CHILDREN_MASK_BYTES];
 
-		if (deep == 0 || deep == 1) {
+		if (deep == 0) {
 			// parrell encode
 			final CountDownLatch cdl = new CountDownLatch(TREE_RADIX + 1);
 			ExecutorService exec = executor;
-			if (deep == 1) {
-				exec = executor1;
-			}
+			// if (deep == layer2Parral) {
+			// exec = executor1;
+			// }
 
 			for (int i = 0; i < TREE_RADIX + 1; i++) {
 				if (children[i] != null && (children[i].isDirty() || children[i].hash == null)) {
@@ -439,7 +473,7 @@ public class ETNode64 {
 								} else {
 									parrelCC1.incrementAndGet();
 								}
-								node.encode(storage, deep + 1);
+								node._encode(storage, blocknumber, deep + 1);
 							} finally {
 								cdl.countDown();
 							}
@@ -462,7 +496,7 @@ public class ETNode64 {
 				bitSet(mask, i);
 			}
 			if (children[i] != null) {
-				byte[] childHash = children[i].encode(storage, deep + 1);
+				byte[] childHash = children[i]._encode(storage, blocknumber, deep + 1);
 				childrenHashs[i] = childHash;
 				totalLen += 65;
 			}
@@ -482,6 +516,9 @@ public class ETNode64 {
 				if (childrenHashs[i] != null) {
 					bb.put((byte) childrenHashs[i].length);
 					bb.put(childrenHashs[i]);
+				}
+				if (deep >= 3) {
+					children[i] = null;
 				}
 			}
 			if (v != null) {
@@ -524,7 +561,7 @@ public class ETNode64 {
 		// return null;
 	}
 
-	public byte[] toBytes(IETStorage64 storage, int deep, int part) {
+	public byte[] toBytes(IETStorage64 storage, int blocknumber, int deep, int part) {
 
 		try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
 			// Write KEY
@@ -558,7 +595,7 @@ public class ETNode64 {
 									// parrelCC1.incrementAndGet();
 									// }
 
-									node.encode(storage, deep + 1);
+									node._encode(storage, blocknumber, deep + 1);
 								} finally {
 									cdl.countDown();
 								}
@@ -573,7 +610,7 @@ public class ETNode64 {
 
 			for (int i = 0; i < TREE_RADIX + 1; i++) {
 				if (children[i] != null) {
-					byte[] childHash = children[i].encode(storage, deep + 1);
+					byte[] childHash = children[i]._encode(storage, blocknumber, deep + 1);
 					childrenHashs[i] = childHash;
 					writeShort(childHash, bout);
 				} else if (childrenHashs[i] != null) {
@@ -618,6 +655,39 @@ public class ETNode64 {
 	}
 
 	public static ETNode64 fromBytes(byte[] hash, byte[] bb) {
+		if (bb == null) {
+			return null;
+		}
+		try {
+			ByteBuffer buffer = ByteBuffer.wrap(bb);
+			int len = buffer.get();
+			byte key[] = new byte[len];
+			buffer.get(key);
+
+			byte[] mask = new byte[CHILDREN_MASK_BYTES];
+			buffer.get(mask);
+
+			byte[][] childrenHash = new byte[TREE_RADIX + 1][];
+			for (int i = 0; i < TREE_RADIX + 1; i++) {
+				if (bitTest(mask, i)) {
+					len = buffer.get();
+					childrenHash[i] = new byte[len];
+					buffer.get(childrenHash[i]);
+				}
+			}
+			byte[] bbv = null;
+			if (buffer.remaining() > 0) {
+				bbv = new byte[buffer.remaining()];
+				buffer.get(bbv);
+			}
+			return new ETNode64(hash, key, bbv, childrenHash);
+		} catch (Exception e) {
+			throw new RuntimeException("parse etnode error:" + bb.length, e);
+		} finally {
+		}
+	}
+
+	private static ETNode64 fromBytes_deprecate(byte[] hash, byte[] bb) {
 		// KEY|
 
 		try (ByteArrayInputStream bin = new ByteArrayInputStream(bb)) {
@@ -650,17 +720,17 @@ public class ETNode64 {
 	}
 
 	public void flushMemory(int deep) {
-		if (deep < 2) {
-			for (int i = 0; i < TREE_RADIX + 1; i++) {
-				if (children[i] != null) {
-					children[i].flushMemory(deep + 1);
-				}
-			}
-		} else {
-			for (int i = 0; i < TREE_RADIX + 1; i++) {
-				children[i] = null;
-			}
-		}
+		// if (deep < 0) {
+		// for (int i = 0; i < TREE_RADIX + 1; i++) {
+		// if (children[i] != null) {
+		// children[i].flushMemory(deep + 1);
+		// }
+		// }
+		// } else {
+		// for (int i = 0; i < TREE_RADIX + 1; i++) {
+		// children[i] = null;
+		// }
+		// }
 	}
 
 	public ETNode64(byte[] hash) {

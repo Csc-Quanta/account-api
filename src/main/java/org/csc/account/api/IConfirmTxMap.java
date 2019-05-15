@@ -1,11 +1,12 @@
 package org.csc.account.api;
 
-import com.google.protobuf.ByteString;
+import java.math.BigInteger;
+import java.util.List;
+
 import org.csc.account.bean.HashPair;
 import org.csc.evmapi.gens.Tx;
 
-import java.math.BigInteger;
-import java.util.List;
+import com.google.protobuf.ByteString;
 
 public interface IConfirmTxMap {
 
@@ -29,7 +30,17 @@ public interface IConfirmTxMap {
 
 	int getQueueSize();
 	int getRemoveSize();
+
+	/**
+	 * 交易入块后清理缓存的确认交易
+	 */
 	void clear();
+
+	/**
+	 * 交易入块后清理缓存的确认交易
+	 * @param blockNumber 当前BlockNumber
+	 */
+	void clear(long blockNumber);
 
 	int clearQueue();
 

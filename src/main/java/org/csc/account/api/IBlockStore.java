@@ -4,6 +4,7 @@ import org.csc.account.bean.BlockStoreNodeValue;
 import org.csc.evmapi.gens.Block.BlockEntity;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,4 +35,6 @@ public interface IBlockStore {
     long getMaxConnectNumber();
 
     long getMaxStableNumber();
+
+    List<BlockEntity> getConnectBlocksByNumber(long number);
 }
